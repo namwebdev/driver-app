@@ -1,7 +1,7 @@
 const User = require("../models/user.js");
 
 const register = async (req, res) => {
-  const { username, name, password, lat, lng, car_type } = req.body;
+  const { username, name, password, lat, lng, car_type, avatar } = req.body;
   await User.create({
     username,
     name,
@@ -9,12 +9,17 @@ const register = async (req, res) => {
     lat,
     lng,
     car_type,
+    avatar,
   });
   res.status(201).send({ message: "Register driver successfully" });
 };
 
 const login = async (req, res) => {
   const { username, password } = req.body;
+  if (!(username && password)) {
+    res.status(400).send({ error: "Username and password is required" });
+    return;
+  }
   const user = await User.findOne({ username, password });
   if (user) {
     const token = user.generateAuthToken(user._id);
@@ -34,8 +39,19 @@ const getById = async (req, res) => {
     res.status(401).send({ message: "Id is required" });
     return;
   }
-  const user = await User.findById(id);
+  const user = await User.findById(id).select("-password");
   res.status(200).send({ user });
 };
 
-module.exports = { register, login, getUser, getById };
+const update = async (req, res) => {
+  const { id } = req.params;
+  const { lat, lng } = req.body;
+  if (!id) {
+    res.status(401).send({ message: "Id is required" });
+    return;
+  }
+  await User.findByIdAndUpdate(id, { lat, lng });
+  res.status(200).send({ message: "Update user info successfully" });
+};
+
+module.exports = { register, login, getUser, getById, update };

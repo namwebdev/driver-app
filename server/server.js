@@ -81,6 +81,7 @@ io.on("connection", (socket) => {
 
 const sendTripInfo = async () => {
   const trip_info = drivers_location[0].trip;
+  console.log(trip_info)
   const listDriverLocations = [];
   drivers_location.forEach((location) => {
     const lat = Number(location.lat);
@@ -124,6 +125,7 @@ const findNearestDriver = async () => {
 
 const sendSMSForClient = async (tripId) => {
   const trip = await Trip.findById(tripId).populate("driver_id");
+  console.log(trip)
   const name = trip.driver_id.name;
   const driverPhone = trip.driver_id.phone;
   const departure = trip.departure;

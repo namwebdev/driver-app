@@ -1,11 +1,19 @@
 const Trip = require("../models/trip");
 
 const get = async (req, res) => {
-  const { client_phone_number } = req.query;
+  const { client_phone_number, driver_id } = req.query;
   if (client_phone_number) {
     const trips = await Trip.find({ client_phone_number }).select(
       "destination"
     );
+    res.status(200).send({ trip: trips });
+    return;
+  }
+  if (driver_id) {
+    const trips = await Trip.find({ driver_id })
+      .select("departure destination created_at")
+      .sort("-created_at") // -1 for descending sort
+      .limit(5);
     res.status(200).send({ trip: trips });
     return;
   }
@@ -16,7 +24,7 @@ const get = async (req, res) => {
 const getById = async (req, res) => {
   const { id } = req.params;
   const trip = await Trip.findById(id).select(
-    "departure_lng _id departure_lat"
+    "departure_lng _id departure_lat departure destination"
   );
   if (trip) {
     res.status(200).send({ trip });
@@ -34,6 +42,8 @@ const create = async (req, res) => {
     driver_id,
     client_id,
     status,
+    client_phone_number,
+    car_type,
   } = req.body;
   try {
     const trip = await Trip.create({
@@ -44,6 +54,8 @@ const create = async (req, res) => {
       driver_id: driver_id || null,
       client_id: client_id || null,
       status: status || 0,
+      client_phone_number,
+      car_type,
     });
     res.status(201).send({ trip });
   } catch (e) {

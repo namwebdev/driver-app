@@ -8,6 +8,7 @@ const user = mongoose.Schema({
   lat: { type: "Number", required: true },
   lng: { type: "Number", required: true },
   car_type: { type: "Number", required: true },
+  avatar: { type: "String", required: true },
 });
 
 user.methods.generateAuthToken = (id) => {

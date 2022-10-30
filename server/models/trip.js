@@ -15,6 +15,7 @@ const trip = mongoose.Schema(
     status: {
       type: "Number",
     },
+    car_type: { type: "Number", required: true },
   },
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } }
 );

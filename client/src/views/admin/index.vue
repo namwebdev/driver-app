@@ -1,0 +1,108 @@
+<template>
+  <el-form @keyup.enter="submit">
+    <el-form-item>
+      <el-input
+        v-model="form.client_phone_number"
+        type="number"
+        placeholder="Số điện thoại khách hàng"
+      ></el-input>
+    </el-form-item>
+    <el-form-item>
+      <input type="text" placeholder="Địa chỉ điểm đón" id="departure" />
+    </el-form-item>
+    <el-form-item>
+      <input type="text" placeholder="Địa chỉ điểm đến" id="destination" />
+    </el-form-item>
+    Loại xe:
+    <el-radio-group v-model="form.car_type" class="ml-4">
+      <el-radio :label="1" size="large">4 chỗ</el-radio>
+      <el-radio :label="2" size="large">7 chỗ</el-radio>
+    </el-radio-group>
+    <el-form-item>
+      <el-button @click="submit" :loading="loading">Đặt chuyến</el-button>
+    </el-form-item>
+  </el-form>
+
+  <DriversAccepted :drivers="driversAccepted" />
+</template>
+
+<script setup>
+import { reactive, onMounted, ref } from "vue";
+import tripApi from "@/services/factory/trip";
+import userApi from "@/services/factory/user";
+import SocketIOService from "@/services/socket/";
+import DriversAccepted from '@/components/DriversAccepted/Index.vue'
+
+const loading = ref(false);
+const form = reactive({
+  lat: "",
+  lng: "",
+  client_phone_number: "",
+  car_type: 1,
+});
+const driversAccepted = ref([]);
+
+init()
+
+onMounted(() => {
+  const autocomplete = new google.maps.places.Autocomplete(
+    document.getElementById("departure"),
+    {
+      componentRestrictions: { country: "vn" },
+      fields: ["address_components", "geometry", "icon", "name"],
+    }
+  );
+  new google.maps.places.Autocomplete(document.getElementById("destination"), {
+    componentRestrictions: { country: "vn" },
+    fields: ["address_components", "geometry", "icon", "name"],
+  });
+  autocomplete.addListener("place_changed", () => {
+    if (autocomplete === null) return;
+    const departure = autocomplete.getPlace().geometry.location;
+    form.lat = departure.lat();
+    form.lng = departure.lng();
+  });
+});
+
+function init() {
+  SocketIOService.on("send-driver-info", async (id) => {
+    const { user } = await userApi.getById(id);
+    if (user) driversAccepted.value.push(user);
+  });
+  SocketIOService.on("submit-driver-for-trip", async (id) => {
+    const { user } = await userApi.getById(id);
+    if (user) driversAccepted.value.push(user);
+  });
+}
+async function submit() {
+  loading.value = true;
+  try {
+    const departure = document.getElementById("departure").value;
+    const destination = document.getElementById("destination").value;
+    if (!(departure && destination && form.client_phone_number)) return;
+
+    const formData = {
+      departure,
+      departure_lat: form.lat,
+      departure_lng: form.lng,
+      destination,
+      status: 0,
+      client_phone_number: form.client_phone_number,
+      car_type: form.car_type
+    };
+    const { trip } = await tripApi.book(formData);
+    if (!trip) return;
+    SocketIOService.emit("book-car", trip._id);
+    form.lat = "";
+    form.lng = "";
+    document.getElementById("departure").value = "";
+    document.getElementById("destination").value = "";
+    form.client_phone_number = "";
+    form.car_type = 1;
+  } finally {
+    loading.value = false;
+  }
+}
+</script>
+
+<style lang="css" scoped></style>

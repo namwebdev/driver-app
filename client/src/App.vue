@@ -1,88 +1,41 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-import { ElButton, ElAutocomplete } from 'element-plus'
+import SocketIOService from "@/services/socket/";
+import authApi from "@/services/factory/auth";
+import { useAuthStore } from "@/stores";
+import { onMounted, ref } from "vue";
+import { Loader } from "@googlemaps/js-api-loader";
+
+const loader = new Loader({
+  apiKey: import.meta.env.VITE_GOOGLE_MAP_API_KEY,
+  libraries: ["places", "geometry"],
+});
+const auth = useAuthStore();
+const loading = ref(true);
+
+init();
+onMounted(() => {
+  loader.load().finally(() => (loading.value = false));
+});
+
+async function init() {
+  try {
+    SocketIOService.initialize();
+    const data = await authApi.get();
+    if (!data) return;
+
+    auth.set(data);
+    SocketIOService.setup(auth.user._id);
+  } catch (e) {
+    if (e?.response?.status === 401) return;
+    console.error("fetchUserData ", e);
+  } finally {
+    loading.value = false;
+  }
+}
 </script>
 
 <template>
-  <el-button>Test</el-button>
-  <el-autocomplete />
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <RouterView v-if="!loading" />
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style>
+<style scoped></style>
