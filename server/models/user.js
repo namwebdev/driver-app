@@ -9,6 +9,7 @@ const user = mongoose.Schema({
   lng: { type: "Number", required: true },
   car_type: { type: "Number", required: true },
   avatar: { type: "String", required: true },
+  phone: { type: "String", required: true },
 });
 
 user.methods.generateAuthToken = (id) => {

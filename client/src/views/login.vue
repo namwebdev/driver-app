@@ -4,7 +4,6 @@
     ref="formRef"
     :model="form"
     status-icon
-    :rules="rules"
     class="login-form"
     label-position="top"
     @keyup.enter="submit(formRef)"
@@ -14,10 +13,30 @@
       <el-link type="primary" :underline="false"><b>ZDriver</b></el-link>
     </div>
     <div class="login-title">Đăng nhập</div>
-    <el-form-item label="Tên tài khoản">
+    <el-form-item
+      prop="username"
+      label="Tên tài khoản"
+      :rules="[
+        {
+          required: true,
+          message: 'Vui lòng nhập tên tài khoản',
+          trigger: ['blur', 'change'],
+        },
+      ]"
+    >
       <el-input v-model="form.username" type="text" autocomplete="off" />
     </el-form-item>
-    <el-form-item label="Mật khẩu">
+    <el-form-item
+      prop="password"
+      label="Mật khẩu"
+      :rules="[
+        {
+          required: true,
+          message: 'Vui lòng nhập mật khẩu',
+          trigger: ['blur', 'change'],
+        },
+      ]"
+    >
       <el-input v-model="form.password" type="password" autocomplete="off" />
     </el-form-item>
     <el-form-item>
@@ -41,11 +60,7 @@ import { useRouter } from "vue-router";
 const auth = useAuthStore();
 const router = useRouter();
 
-const formRef = ref();
-const rules = reactive({
-  username: [{ validator: validateUsername, trigger: "blur" }],
-  password: [{ validator: validatePass, trigger: "blur" }],
-});
+const formRef = ref(null);
 const form = reactive({
   username: "",
   password: "",
@@ -59,7 +74,6 @@ function submit(formEl) {
       login();
       return true;
     }
-    console.log("error submit!");
     return false;
   });
 }
@@ -73,6 +87,7 @@ async function login() {
     loading.value = true;
     const { token } = await authApi.login(form.username, form.password);
     if (!token) {
+      noti("Lỗi", "Có lỗi xảy ra, vui lòng thử lại sau", "error");
       return;
     }
     localStorage.setItem("token", token);
@@ -93,20 +108,6 @@ async function fetchUser() {
     router.push("/" + route);
   } catch (e) {
     throw e;
-  }
-}
-function validateUsername(rule, value, callback) {
-  if (!value) {
-    callback(new Error("Tên tài khoản không được để trống"));
-  } else {
-    callback();
-  }
-}
-function validatePass(value, callback) {
-  if (value === "") {
-    callback(new Error("Mật khẩu không được để trống"));
-  } else {
-    callback();
   }
 }
 </script>

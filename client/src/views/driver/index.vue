@@ -1,7 +1,7 @@
 <template>
   <DriverInfo />
   <div class="container">
-    <DriverTripsCompleted v-show="!show" :trips="driverTrips" />
+    <DriverTripsCompleted v-if="!show" :trips="driverTrips" />
     <transition v-show="show">
       <div>
         <div class="mb-1" v-show="isOnTrip">
@@ -72,17 +72,19 @@ const auth = useAuthStore();
 
 const show = ref(false);
 const driverTrips = ref([]);
-const tripInfo = ref({
-  departure:
-    "115 Nghĩa Thục, phường 5, Quận 5, Thành phố Hồ Chí Minh, Việt Nam",
-  destination:
-    "275 Đường Nguyễn Trãi, Thanh Xuân Trung, Thanh Xuân, Hà Nội, Việt Nam",
-  client_phone_number: "0343811945",
-});
+const tripInfo = ref({});
 const tripId = ref(null);
 const loading = ref(false);
 const isOnTrip = ref(false);
+
 const userId = computed(() => auth.user?._id);
+const timeline = computed(() => {
+  if (Object.keys(tripInfo.value).length === 0) return [];
+  return [
+    { content: "Điểm đón", timestamp: tripInfo.value?.departure },
+    { content: "Điểm đến", timestamp: tripInfo.value?.destination },
+  ];
+});
 
 init();
 

@@ -1,7 +1,7 @@
 const User = require("../models/user.js");
 
 const register = async (req, res) => {
-  const { username, name, password, lat, lng, car_type, avatar } = req.body;
+  const { username, name, password, lat, lng, car_type, avatar, phone } = req.body;
   await User.create({
     username,
     name,
@@ -10,6 +10,7 @@ const register = async (req, res) => {
     lng,
     car_type,
     avatar,
+    phone
   });
   res.status(201).send({ message: "Register driver successfully" });
 };

@@ -9,6 +9,9 @@ body {
 .tc {
   text-align: center;
 }
+.d-fl {
+  display: flex;
+}
 .mt-0-5 {
   margin-top: 5px;
 }
@@ -29,29 +32,54 @@ body {
 }
 /* Font size */
 .f-12 {
-  font-size: 12px
+  font-size: 12px;
 }
 .f-14 {
-  font-size: 14px
+  font-size: 14px;
 }
 .f-18 {
-  font-size: 18px
+  font-size: 18px;
 }
 .f-28 {
   font-size: 28px;
 }
-/* Custome Element Plust component */
+/* Custome Element Plus component */
 .el-timeline-item__content {
-  color: var(--el-color-info-light-5) 
+  color: var(--el-color-info-light-5);
 }
 .el-timeline-item__timestamp {
   font-weight: bold;
   font-size: 14px;
 }
-.el-message {
-  width: 100% !important;
+@media only screen and (max-width: 600px) {
+  .el-message {
+    width: 100% !important;
+  }
 }
 
+/* Google Map input */
+.gg-map-input {
+  --el-input-inner-height: calc(var(--el-input-height, 32px) - 2px);
+  width: 100%;
+  flex-grow: 1;
+  -webkit-appearance: none;
+  color: var(--el-input-text-color, var(--el-text-color-regular));
+  font-size: inherit;
+  height: var(--el-input-inner-height);
+  line-height: var(--el-input-inner-height);
+  padding: 0;
+  outline: 0;
+  border: none;
+  background: 0 0;
+  box-sizing: border-box;
+  background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
+  background-image: none;
+  border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
+  transition: var(--el-transition-box-shadow);
+  box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color))
+    inset;
+    padding: 1px 11px
+}
 .pac-container {
   z-index: 10000;
 }
