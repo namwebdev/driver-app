@@ -31,7 +31,7 @@ async function submitDriverForTrip(tripId, driverId) {
     );
     return true
   } catch {
-    console.log("submitDriverForTrip error");
+    console.error("submitDriverForTrip error");
     return false;
   }
 }

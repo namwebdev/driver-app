@@ -1,6 +1,7 @@
 <template>
   Tài xế đã chấp nhận chuyến xe
-  <div v-for="driver in drivers" :key="driver._id">
+  <div v-if="drivers.length === 0" class="f-18"><i>Chưa có tài xế nào</i></div>
+  <div v-for="driver in drivers" :key="driver._id" class="mt-1">
     <el-card :class="{ active: activeId === driver._id }">
       <el-avatar :src="driver.avatar" />
       {{ driver.name }} - {{ driver.phone }} - Xe

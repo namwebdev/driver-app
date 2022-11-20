@@ -1,10 +1,10 @@
 <template>
   <AdminContainer>
-    <el-form @keyup.enter="submit" v-show="!phoneBooked">
+    <el-form @keyup.enter="submit">
       <el-form-item>
         <el-input
           v-model="form.client_phone_number"
-          type="number"
+          type="text"
           placeholder="Số điện thoại khách hàng"
         ></el-input>
       </el-form-item>
@@ -35,11 +35,14 @@
         >
       </el-form-item>
     </el-form>
-    <div v-if="phoneBooked">
+    <div v-if="phoneBooked" class="">
       <DriversAccepted :drivers="driversAccepted" />
-      <div>
-        Các địa chỉ khách hàng sử dụng số điện thoại {{ phoneBooked }} đã đi gần
+      <div class="mt-3">
+        Các địa chỉ khách hàng sử dụng số điện thoại <b>{{ phoneBooked }}</b> đã đi gần
         đây
+        <div v-for="destination in clientDesination" :key="destination._id" class="mb-1 mt-1">
+          - {{destination.destination}}
+        </div>
       </div>
     </div>
   </AdminContainer>
@@ -92,6 +95,9 @@ function init() {
     const { user } = await userApi.getById(id);
     if (user) driversAccepted.value.push(user);
   });
+  SocketIOService.on("finish-trip", () => {
+    phoneBooked.value = false
+  })
 }
 async function submit() {
   if (!isVietnamesePhoneNumber(form.client_phone_number)) {
@@ -99,6 +105,7 @@ async function submit() {
       type: "error",
       message: "Số điện thoại không đúng định dạng",
     });
+    return
   }
 
   loading.value = true;

@@ -37,7 +37,7 @@ const io = require("socket.io")(server, {
 let drivers_location = [];
 let timer = null;
 const MAX_DISTANCE = 5;
-const MAX_DRIVER_ACCPET = 2;
+const MAX_DRIVER_ACCPET = 1;
 
 io.on("connection", (socket) => {
   // console.info("a user connected");
@@ -60,19 +60,23 @@ io.on("connection", (socket) => {
   });
 
   socket.on("submit-trip", async (trip_info) => {
-    if (drivers_location.length >= 2) return;
+    if (drivers_location.length >= MAX_DRIVER_ACCPET) return;
     const trip = JSON.parse(trip_info);
     drivers_location.push(trip);
     io.emit("send-driver-info", trip.driver.id);
-    if (drivers_location.length < 2) return;
+    if (drivers_location.length < MAX_DRIVER_ACCPET) return;
 
     const tripId = drivers_location[0].trip_id;
     const driverId = await findNearestDriver();
     await submitDriverForTrip(tripId, driverId);
-    io.emit("submit-driver-for-trip", driverId);
-    drivers_location = [];
-    sendSMSForClient(tripId);
+    setTimeout(() => {
+      io.emit("submit-driver-for-trip", driverId);
+      drivers_location = [];
+      sendSMSForClient(tripId);
+    }, 3000);
   });
+
+  socket.on("finish-trip", () => io.emit("finish-trip"));
 
   socket.on("disconnect", () => {
     console.info("user disconnected");
@@ -81,7 +85,6 @@ io.on("connection", (socket) => {
 
 const sendTripInfo = async () => {
   const trip_info = drivers_location[0].trip;
-  console.log(trip_info)
   const listDriverLocations = [];
   drivers_location.forEach((location) => {
     const lat = Number(location.lat);
@@ -125,12 +128,11 @@ const findNearestDriver = async () => {
 
 const sendSMSForClient = async (tripId) => {
   const trip = await Trip.findById(tripId).populate("driver_id");
-  console.log(trip)
   const name = trip.driver_id.name;
   const driverPhone = trip.driver_id.phone;
   const departure = trip.departure;
   // const clientPhone = trip.client_phone_number
-  const clientPhone = "0343811945"
+  const clientPhone = "0343811945";
   const message = `\nChuyến đi bạn đặt đã được tài xế ${name} - ${driverPhone} nhận. Tài xế sẽ liên lạc với bạn khi tới điểm đón "${departure}"`;
   sendSMS(clientPhone, message);
 };

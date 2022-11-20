@@ -109,5 +109,6 @@ async function submit() {
   width: 100px;
   height: 100px;
   box-shadow: rgb(0 0 0 / 24%) 0px 3px 8px;
+  object-fit: cover;
 }
 </style>

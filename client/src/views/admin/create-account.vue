@@ -113,6 +113,7 @@ async function submit() {
   form.car_type = 1
   form.phone = ""
   form.avatar = ""
+  document.getElementById("location").value = ""
 
 }
 </script>

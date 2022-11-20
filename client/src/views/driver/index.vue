@@ -13,7 +13,7 @@
         </div>
         <div class="mb-2 f-18"><b>Thông tin chuyến xe:</b></div>
         <div v-show="isOnTrip" class="f-14 tc mb-1-5">
-          Số điện thoại khách hàng: <b>{{ tripInfo.client_phone_number }}</b>
+          Số điện thoại khách hàng: <b>0343811945</b>
         </div>
         <el-timeline>
           <el-timeline-item
@@ -32,23 +32,7 @@
       </div>
     </transition>
   </div>
-  <!-- <div v-show="show" v-loading="loading">
   
-      <div class="trip-info">
-        <div class="tc">
-          <div class="trip-info-title">Điểm đón:</div>
-          <div>{{ tripInfo.departure }}</div>
-        </div>
-        <div class="tc">
-          <div class="trip-info-title">Điểm đến</div>
-          <div>{{ tripInfo.destination }}</div>
-        </div>
-      </div>
-      <div class="tr">
-        <el-button @click="finishTrip" v-if="isOnTrip"> Hoàn thành </el-button>
-        <el-button @click="submitTrip" v-else> Chấp nhận </el-button>
-      </div>
-    </div> -->
   <div v-loading="loading" v-show="show" class="btns">
     <el-button @click="finishTrip" type="primary" v-if="isOnTrip" size="large">
       Hoàn thành
@@ -114,14 +98,14 @@ async function init() {
     if (userId.value == id) {
       isOnTrip.value = true;
       ElMessage({
-        message: `Hệ thống đã chọn bạn làm tài xế phù hợp cho chuyến xe.<br/>Hãy bắt đầu chuyên xe!`,
+        message: `Hệ thống đã chọn bạn làm tài xế phù hợp cho chuyến xe. Hãy bắt đầu chuyên xe!`,
         type: "success",
         duration: 5000,
       });
     } else {
       show.value = false;
       ElMessage({
-        message: `Hệ thống đã chọn tài xế phù hợp cho chuyến xe.<br/>Hãy chờ chuyên xe tiếp theo`,
+        message: `Hệ thống đã chọn tài xế phù hợp cho chuyến xe. Hãy chờ chuyên xe tiếp theo`,
         duration: 5000,
       });
     }
@@ -145,7 +129,7 @@ function submitTrip() {
   ElMessage({
     message: "Bạn đã chấp nhận chuyến xe. Vui lòng đợi hệ thống xử lí.",
     type: "success",
-    duration: 5000,
+    duration: 3000,
   });
   loading.value = true;
 }
@@ -156,6 +140,8 @@ async function finishTrip() {
     if (data) {
       show.value = false;
       isOnTrip.value = false;
+      SocketIOService.emit("finish-trip");
+      await getTrips()
     }
   } finally {
     loading.value = false;
@@ -176,6 +162,8 @@ async function finishTrip() {
   height: 60px;
   bottom: 0;
   left: 0;
+  display: flex;
+    align-items: flex-end;
 }
 .el-button--large {
   width: 100%;

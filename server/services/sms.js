@@ -1,5 +1,5 @@
 const accountSID = "ACc74c4d2abcf12bf6d410a0c4a7a19778";
-const authToken = "a6be65c40ba0cb58c6a3ee3f42982226";
+const authToken = "bc2dfa09b1d02051174ed4721a260f48";
 const messagingServiceSid = "MGbd595712ea6e00941a47fc4f54588730";
 
 // const accountSID = process.env.TWILIO_ACCOUNT_SID;
@@ -16,7 +16,7 @@ const sendSMS = (phoneNumber, message) => {
       messagingServiceSid,
       to: phone,
     })
-    .then((message) => console.log("Send SMS successfully"))
+    .then((message) => console.info("Send SMS successfully"))
     .done();
 };
 

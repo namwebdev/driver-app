@@ -3,7 +3,7 @@ const Trip = require("../models/trip");
 const get = async (req, res) => {
   const { client_phone_number, driver_id } = req.query;
   if (client_phone_number) {
-    const trips = await Trip.find({ client_phone_number, status: 2 }).select(
+    const trips = await Trip.find({ client_phone_number, status: 2 }).limit(5).select(
       "destination"
     );
     res.status(200).send({ trip: trips });
