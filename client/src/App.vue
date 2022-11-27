@@ -20,11 +20,9 @@ onMounted(() => {
 async function init() {
   try {
     SocketIOService.initialize();
-    const data = await authApi.get();
-    if (!data) return;
 
-    auth.set(data);
-    SocketIOService.setup(auth.user._id);
+    const id = auth?.user?._id || Math.random() * 1000
+    SocketIOService.setup(id);
   } catch (e) {
     if (e?.response?.status === 401) return;
     console.error("fetchUserData ", e);
